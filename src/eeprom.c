@@ -27,6 +27,7 @@
   #include <stm32f0xx_hal.h>
 #else
   #include <stm32f1xx_hal.h>
+  uint8_t dummyMemory[100];
 #endif
 
 #include <stdio.h>
@@ -44,7 +45,12 @@ static int devAddr = 0xA0;
 
 void eepromInit(I2C_HandleTypeDef * i2c)
 {
-  hi2c = i2c;
+  #ifdef STM32F0
+    hi2c = i2c;
+  #else
+    for(int i=0;i<100;i++)
+      dummyMemory[i] = 0;
+  #endif
 }
 
 bool eepromTest()
@@ -56,37 +62,56 @@ bool eepromTest()
 
 bool eepromRead(int address, void* data, size_t length)
 {
-  int status;
+  #ifdef STM32F0
+    int status;
+  
+    status = HAL_I2C_Mem_Read(hi2c, devAddr, address, I2C_MEMADD_SIZE_16BIT, data, length, 100);
 
-  status = HAL_I2C_Mem_Read(hi2c, devAddr, address, I2C_MEMADD_SIZE_16BIT, data, length, 100);
-
-  if (status == HAL_OK)
-    return true;
-
-  return false;
+    if (status == HAL_OK)
+      return true;
+    
+    return false;
+  #else
+    for (int i=0; i<length; i++) {
+      memcpy(data, dummyMemory[address],length);
+    }  
+  #endif
 }
 
 bool eepromWrite(int address, void* data, size_t length)
 {
-  int status = HAL_OK;
-  size_t start_address = address;
-  size_t start_i = 0;
+  #ifdef STM32F0
+    int status = HAL_OK;
+    size_t start_address = address;
+    size_t start_i = 0;
 
-  for (int i=0; i<length; i++) {
-    if ((address+i+1)%32 == 0) {
-      status = HAL_I2C_Mem_Write(hi2c, devAddr, start_address, I2C_MEMADD_SIZE_16BIT, ((uint8_t*)data)+start_i, (i+1) - start_i, 100);
-      start_address = address + i + 1;
-      start_i = i+1;
+    for (int i=0; i<length; i++) {
+      if ((address+i+1)%32 == 0) {
+        status = HAL_I2C_Mem_Write(hi2c, devAddr, start_address, I2C_MEMADD_SIZE_16BIT, ((uint8_t*)data)+start_i, (i+1) - start_i, 100);
+        start_address = address + i + 1;
+        start_i = i+1;
+        vTaskDelay(10);
+      }
+    }
+    if (start_i != length) {
+      status = HAL_I2C_Mem_Write(hi2c, devAddr, start_address, I2C_MEMADD_SIZE_16BIT, ((uint8_t*)data)+start_i, length - start_i, 100);
       vTaskDelay(10);
     }
-  }
-  if (start_i != length) {
-    status = HAL_I2C_Mem_Write(hi2c, devAddr, start_address, I2C_MEMADD_SIZE_16BIT, ((uint8_t*)data)+start_i, length - start_i, 100);
-    vTaskDelay(10);
-  }
 
-  if (status == HAL_OK)
+    if (status == HAL_OK)
+      return true;
+
+    return false;
+  #else
+    int status = HAL_OK;
+    size_t start_address = address;
+    size_t start_i = 0;
+
+    for (int i=0; i<length; i++) {
+      dummyMemory[address+i] =  ((uint8_t*)data)+i;
+    }
+
     return true;
 
-  return false;
+  #endif
 }

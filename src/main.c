@@ -44,7 +44,9 @@
 #include "button.h"
 
 #include "cfg.h"
-#include "eeprom.h"
+#ifdef STM32F0
+  #include "eeprom.h"
+#endif
 
 #include "usb_device.h"
 #include "usbcomm.h"
