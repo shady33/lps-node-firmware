@@ -23,8 +23,11 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 /* uwb.c: Uwb radio implementation, low level handling */
-
-#include <stm32f0xx_hal.h>
+#ifdef STM32F0
+  #include <stm32f0xx_hal.h>
+#else
+  #include <stm32f1xx_hal.h>
+#endif
 
 #include "uwb.h"
 
@@ -248,7 +251,7 @@ struct uwbConfig_s * uwbGetConfig()
 }
 
 /**** DWM1000 interrupt handling *****/
-#define DWM_IRQn EXTI0_1_IRQn
+#define DWM_IRQn EXTI0_IRQn
 #define DWM_IRQ_PIN GPIO_PIN_0
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)

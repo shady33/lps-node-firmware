@@ -22,16 +22,23 @@
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stm32f0xx_hal.h>
-#include <stm32f0xx_hal_gpio.h>
 
 #include "led.h"
+
+#ifdef STM32F0
+  #include <stm32f0xx_hal.h>
+  #include <stm32f0xx_hal_gpio.h>
+#else
+  #include <stm32f1xx_hal.h>
+  #include <stm32f1xx_hal_gpio.h>
+#endif
 
 typedef struct {
   uint32_t pin;
   GPIO_TypeDef * port;
 } led_t;
 
+#ifdef STM32F0
 static const led_t leds_revd[] = {
     [ledRanging] = {.pin = GPIO_PIN_1, .port = GPIOF},
     [ledSync] = {.pin = GPIO_PIN_1, .port = GPIOA},
@@ -43,6 +50,13 @@ static const led_t leds_revc[] = {
     [ledSync] = {.pin = GPIO_PIN_14, .port = GPIOC},
     [ledMode] = {.pin = GPIO_PIN_15, .port = GPIOC}
 };
+#else
+static const led_t leds_revc[] = {
+    [ledRanging] = {.pin = GPIO_PIN_11, .port = GPIOB},
+    [ledSync] = {.pin = GPIO_PIN_2, .port = GPIOA},
+    [ledMode] = {.pin = GPIO_PIN_1, .port = GPIOA}
+};
+#endif
 
 static bool isBlinking[N_LEDS];
 static uint32_t disableTime[N_LEDS];
@@ -53,8 +67,12 @@ void ledInit(void) {
 
 static inline void setLed(led_e led, bool value)
 {
-  HAL_GPIO_WritePin(leds_revd[led].port, leds_revd[led].pin, value?GPIO_PIN_SET:GPIO_PIN_RESET);
-  HAL_GPIO_WritePin(leds_revc[led].port, leds_revc[led].pin, value?GPIO_PIN_SET:GPIO_PIN_RESET);
+  #ifdef STM32F0
+    HAL_GPIO_WritePin(leds_revd[led].port, leds_revd[led].pin, value?GPIO_PIN_SET:GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(leds_revc[led].port, leds_revc[led].pin, value?GPIO_PIN_SET:GPIO_PIN_RESET);
+  #else
+    HAL_GPIO_WritePin(leds_revc[led].port, leds_revc[led].pin, value?GPIO_PIN_SET:GPIO_PIN_RESET);
+  #endif
 }
 
 void ledOn(led_e led) {

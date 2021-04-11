@@ -22,18 +22,23 @@
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
+
+#ifdef STM32F0
+  #include <stm32f0xx_hal.h>
+#else
+  #include <stm32f1xx_hal.h>
+#endif
+
+
 #include "dwOps.h"
-
 #include <string.h>
-
-#include <stm32f0xx_hal.h>
 #include "spi.h"
 
 extern SPI_HandleTypeDef hspi1;
 
 // #define DEBUG_SPI
 
-#define DWM_IRQn EXTI0_1_IRQn
+#define DWM_IRQn EXTI0_IRQn
 
 static dwDevice_t *dev;
 

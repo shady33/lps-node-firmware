@@ -22,7 +22,13 @@
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stm32f0xx_hal.h>
+
+#ifdef STM32F0
+  #include <stm32f0xx_hal.h>
+#else
+  #include <stm32f1xx_hal.h>
+#endif
+
 #include <stdio.h>
 
 #include <stdbool.h>

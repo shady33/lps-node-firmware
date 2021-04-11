@@ -78,8 +78,8 @@ static void initUart(UART_HandleTypeDef* huart, USART_TypeDef* instance) {
   huart->Init.Mode = UART_MODE_TX_RX;
   huart->Init.HwFlowCtl = UART_HWCONTROL_NONE;
   huart->Init.OverSampling = UART_OVERSAMPLING_16;
-  huart->Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED ;
-  huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
+  // huart->Init.OneBitSampling = UART_ONEBIT_SAMPLING_DISABLED ;
+  // huart->AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
   HAL_UART_Init(huart);
 }
 
@@ -98,7 +98,7 @@ void initPins(UART_HandleTypeDef* huart) {
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF1_USART1;
+    // GPIO_InitStruct.Alternate = GPIO_AF1_USART1;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
   } else if(huart->Instance==USART3) {
     /* Peripheral clock enable */
@@ -112,7 +112,7 @@ void initPins(UART_HandleTypeDef* huart) {
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF4_USART3;
+    // GPIO_InitStruct.Alternate = GPIO_AF4_USART3;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
   }
 }

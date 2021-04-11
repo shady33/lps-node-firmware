@@ -22,7 +22,12 @@
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-#include <stm32f0xx_hal.h>
+#ifdef STM32F0
+  #include <stm32f0xx_hal.h>
+#else
+  #include <stm32f1xx_hal.h>
+#endif
+
 #include <string.h>
 #include <stdio.h>
 #include <math.h>
@@ -84,7 +89,13 @@ static void main_task(void *pvParameters) {
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_I2C1_Init();
+
+  // I2C is used to communicate to EEPROM and Pressure sensor
+  // Both not avaibale in our version
+  #ifdef STM32F0
+    MX_I2C1_Init();
+  #endif
+
   MX_USART1_UART_Init();
   MX_SPI1_Init();
   MX_USB_DEVICE_Init();
@@ -103,24 +114,26 @@ static void main_task(void *pvParameters) {
   }
   printf("\r\n");
 
-  // Initializing pressure sensor (if present ...)
-  lps25hInit(&hi2c1);
-  testSupportPrintStart("Initializing pressure sensor");
-  if (lps25hTestConnection()) {
-    printf("[OK]\r\n");
-    lps25hSetEnabled(true);
-  } else {
-    printf("[FAIL] (%u)\r\n", (unsigned int)hi2c1.ErrorCode);
-    selftestPasses = false;
-  }
+  #ifdef STM32F0
+    // Initializing pressure sensor (if present ...)
+    lps25hInit(&hi2c1);
+    testSupportPrintStart("Initializing pressure sensor");
+    if (lps25hTestConnection()) {
+      printf("[OK]\r\n");
+      lps25hSetEnabled(true);
+    } else {
+      printf("[FAIL] (%u)\r\n", (unsigned int)hi2c1.ErrorCode);
+      selftestPasses = false;
+    }
 
-  testSupportPrintStart("Pressure sensor self-test");
-  testSupportReport(&selftestPasses, lps25hSelfTest());
+    testSupportPrintStart("Pressure sensor self-test");
+    testSupportReport(&selftestPasses, lps25hSelfTest());
 
-  // Initializing i2c eeprom
-  eepromInit(&hi2c1);
-  testSupportPrintStart("EEPROM self-test");
-  testSupportReport(&selftestPasses, eepromTest());
+    // Initializing i2c eeprom
+    eepromInit(&hi2c1);
+    testSupportPrintStart("EEPROM self-test");
+    testSupportReport(&selftestPasses, eepromTest());
+  #endif
 
   cfgInit();
 
@@ -635,7 +648,7 @@ static void bootload(void) {
     HAL_RCC_DeInit();
     HAL_DeInit();
 
-    __HAL_REMAPMEMORY_SYSTEMFLASH();
+    // __HAL_REMAPMEMORY_SYSTEMFLASH();
 
     // arm-none-eabi-gcc 4.9.0 does not correctly inline this
     //     //     // MSP function, so we write it out explicitly here.

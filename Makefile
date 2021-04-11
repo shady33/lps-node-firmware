@@ -1,7 +1,7 @@
 OPENOCD           ?= openocd
 OPENOCD_INTERFACE ?= interface/stlink-v2.cfg
 OPENOCD_CMDS      ?=
-REV               ?= B
+REV               ?= C
 PYTHON2           ?= python2
 # CFLAGS          += -fdiagnostics-color=auto
 # CFLAGS += -DUSE_FTDI_UART
@@ -15,6 +15,11 @@ HAL_ROOT=hal/stm32f0xx
 CPU=f0
 PROCESSOR=-mthumb -mcpu=cortex-m0 -DHSI48_VALUE="((uint32_t)48000000)" -DSTM32F072xB
 OPENOCD_TARGET    ?= target/stm32f0x_stlink.cfg
+else ifeq ($(strip $(REV)),C)
+HAL_ROOT=hal/stm32f1xx
+CPU=f1
+PROCESSOR=-mthumb -mcpu=cortex-m3 -DSTM32F103x8
+OPENOCD_TARGET    ?= target/stm32f1x_stlink.cfg
 else
 $(error Rev.$(REV) unknown)
 endif
@@ -27,10 +32,18 @@ OBJS+=$(foreach mod, $(FREERTOS_OBJS), lib/freertos/src/$(mod).o)
 INCLUDES+=-Ilib/freertos/inc
 
 # Platform specific files
+ifeq ($(strip $(REV)),C)
+OBJS+=src/f1/startup_stm32f10x.o src/f1/system_stm32f10x.o src/f1/stm32f10x_it.o src/f1/stm32f10x_hal_msp.o
+OBJS+=src/f1/gpio.o src/f1/i2c.o src/f1/spi.o src/f1/system.o src/f1/usart.o
+OBJS+=src/f1/usbd_conf.o
+else
 OBJS+=src/f0/startup_stm32f072xb.o src/f0/system_stm32f0xx.o src/f0/stm32f0xx_it.o src/f0/stm32f0xx_hal_msp.o
 OBJS+=src/f0/gpio.o src/f0/i2c.o src/f0/spi.o src/f0/system.o src/f0/usart.o
-OBJS+=src/f0/usbd_conf.o src/eeprom.o src/bootmode.o
+OBJS+=src/f0/usbd_conf.o
 HALS+=i2c_ex
+endif
+OBJS+= src/eeprom.o src/bootmode.o
+
 
 OBJS+=src/main.o
 OBJS+=src/usb_device.o src/usbd_cdc_if.o src/usbd_desc.o src/lps25h.o src/led.o src/button.o
@@ -38,9 +51,9 @@ OBJS+=src/cfg.o src/usbcomm.o src/test_support.o src/production_test.o
 OBJS+=src/uwb.o src/uwb_twr_anchor.o src/uwb_sniffer.o src/uwb_twr_tag.o
 OBJS+=src/lpp.o src/uwb_tdoa_anchor2.o src/uwb_tdoa_anchor3.o
 
-HALS+=gpio rcc cortex i2c pcd dma pcd_ex rcc_ex spi uart pwr
+HALS+=gpio rcc cortex i2c pcd dma pcd_ex rcc_ex spi uart pwr 
 OBJS+=$(foreach mod, $(HALS), $(HAL_ROOT)/Src/stm32$(CPU)xx_hal_$(mod).o)
-OBJS+=$(HAL_ROOT)/Src/stm32$(CPU)xx_hal.o
+OBJS+=$(HAL_ROOT)/Src/stm32$(CPU)xx_hal.o $(HAL_ROOT)/Src/stm32$(CPU)xx_ll_usb.o
 
 USB_CORES=core ctlreq ioreq
 USB_CDC=cdc
@@ -56,12 +69,30 @@ OBJS+=src/dwOps.o
 CFLAGS+=$(PROCESSOR) $(INCLUDES) -O3 -g3 -Wall -Wno-pointer-sign -std=gnu11
 LDFLAGS+=$(PROCESSOR) --specs=nano.specs --specs=nosys.specs -lm -lc -u _printf_float
 
-ifeq ($(strip $(BOOTLOAD)),0)
-LDFLAGS+=-Ttools/make/stm32f072.ld
-LOAD_ADDRESS = 0x8000000
-else
-LDFLAGS+=-Ttools/make/stm32f072_bootload.ld
-LOAD_ADDRESS = 0x8005000
+ifeq ($(strip $(REV)),A)
+	ifeq ($(strip $(BOOTLOAD)),0)
+	LDFLAGS+=-Ttools/make/stm32f072.ld
+	LOAD_ADDRESS = 0x8000000
+	else
+	LDFLAGS+=-Ttools/make/stm32f072_bootload.ld
+	LOAD_ADDRESS = 0x8005000
+	endif
+else ifeq ($(strip $(REV)),B)
+	ifeq ($(strip $(BOOTLOAD)),0)
+	LDFLAGS+=-Ttools/make/stm32f072.ld
+	LOAD_ADDRESS = 0x8000000
+	else
+	LDFLAGS+=-Ttools/make/stm32f072_bootload.ld
+	LOAD_ADDRESS = 0x8005000
+	endif
+else ifeq ($(strip $(REV)),C)
+	ifeq ($(strip $(BOOTLOAD)),0)
+	LDFLAGS+=-Ttools/make/stm32f103.ld
+	LOAD_ADDRESS = 0x8000000
+	else
+	LDFLAGS+=-Ttools/make/stm32f103_bootload.ld
+	LOAD_ADDRESS = 0x8005000
+	endif
 endif
 
 # Remove un-used functions and global variables from output file

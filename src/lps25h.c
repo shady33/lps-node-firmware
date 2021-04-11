@@ -31,7 +31,12 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include <stm32f0xx_hal.h>
+#ifdef STM32F0
+  #include "stm32f0xx_hal.h"
+#else
+  #include "stm32f1xx_hal.h"
+#endif
+
 
 #include "lps25h.h"
 

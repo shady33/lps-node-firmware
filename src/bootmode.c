@@ -23,7 +23,11 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "stm32f0xx_hal.h"
+#ifdef STM32F0
+  #include "stm32f0xx_hal.h"
+#else
+  #include "stm32f1xx_hal.h"
+#endif
 #include "bootmode.h"
 
 
@@ -43,10 +47,10 @@ void bootmodeClearBootloaderModeFlag() {
 static void writeBuRegister(uint32_t data) {
   __HAL_RCC_PWR_CLK_ENABLE();
   HAL_PWR_EnableBkUpAccess();
-
+   // CHECK THIS IF NEEDED
   // Disable write protection
-  RTC->WPR = 0xCA;
-  RTC->WPR = 0x53;
+  // RTC->WPR = 0xCA;
+  // RTC->WPR = 0x53;
 
-  RTC->BKP0R = data;
+  // RTC->BKP0R = data;
 }
