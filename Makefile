@@ -18,7 +18,7 @@ OPENOCD_TARGET    ?= target/stm32f0x_stlink.cfg
 else ifeq ($(strip $(REV)),C)
 HAL_ROOT=hal/stm32f1xx
 CPU=f1
-PROCESSOR=-mthumb -mcpu=cortex-m3 -DSTM32F103x8
+PROCESSOR=-mthumb -mcpu=cortex-m3 -DHSE_VALUE="((uint32_t)16000000)" -DSTM32F103x8
 OPENOCD_TARGET    ?= target/stm32f1x_stlink.cfg
 else
 $(error Rev.$(REV) unknown)
