@@ -4,7 +4,7 @@ OPENOCD_CMDS      ?=
 REV               ?= C
 PYTHON2           ?= python2
 # CFLAGS          += -fdiagnostics-color=auto
-# CFLAGS += -DUSE_FTDI_UART
+CFLAGS += -DUSE_FTDI_UART
 
 BOOTLOAD          ?= 0
 
@@ -19,7 +19,7 @@ else ifeq ($(strip $(REV)),C)
 HAL_ROOT=hal/stm32f1xx
 CPU=f1
 PROCESSOR=-mthumb -mcpu=cortex-m3 -DHSE_VALUE="((uint32_t)16000000)" -DSTM32F103x8
-OPENOCD_TARGET    ?= target/stm32f1x_stlink.cfg
+OPENOCD_TARGET    ?= target/stm32f1x.cfg
 else
 $(error Rev.$(REV) unknown)
 endif

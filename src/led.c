@@ -52,7 +52,7 @@ static const led_t leds_revc[] = {
 };
 #else
 static const led_t leds_revc[] = {
-    [ledRanging] = {.pin = GPIO_PIN_11, .port = GPIOB},
+    [ledRanging] = {.pin = GPIO_PIN_13, .port = GPIOC},
     [ledSync] = {.pin = GPIO_PIN_2, .port = GPIOA},
     [ledMode] = {.pin = GPIO_PIN_1, .port = GPIOA}
 };

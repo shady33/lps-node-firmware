@@ -117,7 +117,7 @@ void uwbInit()
   if (config.anchorListSize <= MAX_ANCHORS) {
     cfgReadU8list(cfgAnchorlist, config.anchors, config.anchorListSize);
   }
-
+  
   if (config.mode < uwbAlgorithmCount()) {
     algorithm = availableAlgorithms[config.mode].algorithm;
   } else {
@@ -209,7 +209,7 @@ char * uwbAlgorithmName(unsigned int id)
 
 static int checkIrq()
 {
-  return HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0);
+  // return HAL_GPIO_ReadPin(GPIOB, GPIO_PIN_0);
 }
 
 static void uwbTask(void* parameters)

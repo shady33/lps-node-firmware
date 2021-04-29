@@ -73,8 +73,10 @@ bool eepromRead(int address, void* data, size_t length)
     return false;
   #else
     for (int i=0; i<length; i++) {
-      memcpy(data, dummyMemory[address],length);
-    }  
+    // memcpy(data, dummyMemory[address],length);
+      *(&data+i) = dummyMemory[address+i];
+    }
+    return true;  
   #endif
 }
 

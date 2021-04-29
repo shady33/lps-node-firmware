@@ -100,6 +100,17 @@ static void main_task(void *pvParameters) {
 
   MX_USART1_UART_Init();
   MX_SPI1_Init();
+  
+  // Forcing PA 12 to handle the missing 1.5Kohm resistor 
+  GPIO_InitTypeDef GPIO_InitStruct;
+  GPIO_InitStruct.Pin = GPIO_PIN_12;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, 0);
+  HAL_Delay(15);
+
   MX_USB_DEVICE_Init();
 
   // Light up all LEDs to test

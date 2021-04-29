@@ -23,6 +23,8 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f1xx_it.h"
+#include "stm32f1xx_hal.h"
+#include "stm32f1xx.h"
 
 /* Tick timer count. */
 volatile unsigned long time32_incr;
@@ -140,6 +142,14 @@ void vApplicationTickHook(void)
 	// time32_incr++;
   HAL_IncTick();
   HAL_SYSTICK_IRQHandler();
+}
+
+/**
+  * @brief This function handles EXTI line0 interrupt.
+  */
+void EXTI0_IRQHandler(void)
+{
+  HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_0);
 }
 
 /******************************************************************************/

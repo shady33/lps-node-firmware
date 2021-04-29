@@ -46,8 +46,9 @@ static dwDevice_t *dev;
 void dwOpsInit(dwDevice_t *device)
 {
   dev = device;
-
-  NVIC_EnableIRQ(DWM_IRQn);
+  
+  HAL_NVIC_SetPriority(DWM_IRQn,5,0);
+  HAL_NVIC_EnableIRQ(DWM_IRQn);
 }
 
 // Aligned buffer of 128bytes
