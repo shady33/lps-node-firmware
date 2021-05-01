@@ -69,4 +69,5 @@ void cfgSetBinaryMode(bool enable);
 
 bool cfgIsBinaryMode();
 
+void cfgCommit();
 #endif

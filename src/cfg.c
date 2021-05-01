@@ -40,14 +40,13 @@ typedef struct {
   uint8_t *data;
 } TlvArea;
 
-// Temporary fix, just buffer the first 100 bytes
-#define NUMBER_OF_BYTES_READ 100
+#define NUMBER_OF_BYTES_READ 30
 #define MAGIC ((uint8_t) 0xBC)
 
 #define SIZE_HEADER 5
 #define SIZE_TAIL 1
 
-static uint8_t buffer[NUMBER_OF_BYTES_READ];
+static uint8_t buffer[NUMBER_OF_BYTES_READ+2];
 
 static TlvArea tlv;
 
@@ -79,12 +78,17 @@ bool deckTlvHasElement(TlvArea *tlv, ConfigField type) {
 
 /* Reads all the data from the EEPROM */
 static bool readData(void) {
-  //int i;
   if (eepromRead(0, buffer, NUMBER_OF_BYTES_READ)) {
-    /*printf("EEPROM: ");
-    for (i = 0; i <NUMBER_OF_BYTES_READ; i++)
-      printf("0x%02X ", buffer[i]);
-    printf("\r\n");*/
+    return true;
+  } else {
+    printf("CONFIG\t: Failed to read data from EEPROM!\r\n");
+    return false;
+  }
+}
+
+/* Reads all the data from the EEPROM */
+static bool readFlashData(void) {
+  if (eepromFlashRead(0, buffer, NUMBER_OF_BYTES_READ)) {
     return true;
   } else {
     printf("CONFIG\t: Failed to read data from EEPROM!\r\n");
@@ -147,7 +151,7 @@ static bool write_defaults(void) {
   write_crc();
   if (!eepromWrite(0, buffer, 7))
     return false;
-  HAL_Delay(10);
+  HAL_Delay(50);
   if (readData()) {
     if (check_content()) {
       return true;
@@ -160,7 +164,7 @@ static bool write_defaults(void) {
 }
 
 void cfgInit(void) {
-  if (readData()) {
+  if (readFlashData()) {
     cfgHeader = (CfgHeader*) buffer;
     tlv.data = &buffer[SIZE_HEADER];
     if (check_content()) {
@@ -206,7 +210,6 @@ bool cfgWriteU8(ConfigField field, uint8_t value) {
       tlv.data[cfgHeader->tlvSize+2] = value;
       cfgHeader->tlvSize += 3;
     }
-
     write_crc();
     eepromWrite(0, buffer, NUMBER_OF_BYTES_READ);
     HAL_Delay(10);
@@ -338,4 +341,10 @@ void cfgSetBinaryMode(bool enable)
 bool cfgIsBinaryMode()
 {
   return binaryMode;
+}
+
+void cfgCommit()
+{
+  eepromErase();
+  eepromCommit(0, buffer, NUMBER_OF_BYTES_READ);
 }

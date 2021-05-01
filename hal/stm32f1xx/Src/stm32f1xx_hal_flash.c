@@ -958,6 +958,35 @@ static void FLASH_SetErrorCode(void)
   * @}
   */
 
+HAL_StatusTypeDef HAL_FLASH_Erase(uint32_t address)
+{
+  HAL_StatusTypeDef status = HAL_ERROR;
+  // uint32_t address = 0U;
+
+  /* Process Locked */
+  __HAL_LOCK(&pFlash);
+
+  status = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);
+  /* Wait for last operation to be completed */
+  if (status == HAL_OK)
+  {
+    SET_BIT(FLASH->CR, FLASH_CR_PER);
+    WRITE_REG(FLASH->AR, address);
+    SET_BIT(FLASH->CR, FLASH_CR_STRT);
+
+    /* Wait for last operation to be completed */
+    status = FLASH_WaitForLastOperation((uint32_t)FLASH_TIMEOUT_VALUE);
+    
+    /* If the erase operation is completed, disable the PER Bit */
+    CLEAR_BIT(FLASH->CR, FLASH_CR_PER);
+  }
+  /* Process Unlocked */
+  __HAL_UNLOCK(&pFlash);
+
+  return status;
+  
+}
+
 #endif /* HAL_FLASH_MODULE_ENABLED */
 
 /**

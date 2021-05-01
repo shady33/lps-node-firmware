@@ -42,7 +42,6 @@ The implementation must handle
 4. Around 20 concurrent visible anchors
 
 */
-
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>

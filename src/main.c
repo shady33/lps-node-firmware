@@ -37,21 +37,22 @@
 
 #include "system.h"
 #include "spi.h"
-#include "i2c.h"
 #include "usart.h"
 #include "gpio.h"
 #include "led.h"
 #include "button.h"
 
 #include "cfg.h"
-#ifdef STM32F0
-  #include "eeprom.h"
-#endif
 
 #include "usb_device.h"
 #include "usbcomm.h"
 
+#ifdef STM32F0
+#include "eeprom.h"
 #include "lps25h.h"
+#include "i2c.h"
+#endif
+
 #include "test_support.h"
 #include "production_test.h"
 
@@ -102,16 +103,16 @@ static void main_task(void *pvParameters) {
   MX_SPI1_Init();
   
   // Forcing PA 12 to handle the missing 1.5Kohm resistor 
-  GPIO_InitTypeDef GPIO_InitStruct;
-  GPIO_InitStruct.Pin = GPIO_PIN_12;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, 0);
-  HAL_Delay(15);
+  // GPIO_InitTypeDef GPIO_InitStruct;
+  // GPIO_InitStruct.Pin = GPIO_PIN_12;
+  // GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  // GPIO_InitStruct.Pull = GPIO_NOPULL;
+  // GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+  // HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, 0);
+  // HAL_Delay(15);
 
-  MX_USB_DEVICE_Init();
+  // MX_USB_DEVICE_Init();
 
   // Light up all LEDs to test
   ledOn(ledRanging);
@@ -148,6 +149,10 @@ static void main_task(void *pvParameters) {
     testSupportReport(&selftestPasses, eepromTest());
   #endif
 
+  // uint16_t start_address = 0x0800FC00UL;
+  // uint16_t data_local = *(__IO uint16_t*)start_address;
+  // printf("Local data %d\n",data_local);
+   
   cfgInit();
 
   // Initialising radio
@@ -295,11 +300,13 @@ static void handleMenuMain(char ch, MenuState* menuState) {
       cfgSetBinaryMode(true);
       menuState->configChanged = false;
       break;
+    #if !defined(DISABLE_TEST)
     case '#':
       productionTestsRun();
       printf("System halted, reset to continue\r\n");
       while(true){}
       break;
+    #endif
     case 'p':
          printPowerHelp();
          menuState->currentMenu = powerMenu;
@@ -450,7 +457,10 @@ static void handleSerialInput(char ch) {
   }
 
   if (menuState.configChanged) {
+    cfgCommit();
     printf("EEPROM configuration changed, restart for it to take effect!\r\n");
+    vTaskDelay(100);
+    HAL_NVIC_SystemReset();
   }
 }
 

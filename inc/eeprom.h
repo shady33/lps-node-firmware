@@ -10,9 +10,14 @@
     #include <stm32f1xx_hal.h>
 #endif
 
-
+#ifdef STM32F0
 void eepromInit(I2C_HandleTypeDef * i2c);
-
+#else
+void eepromInit();
+bool eepromErase();
+bool eepromCommit(int address, void* data, size_t length);
+bool eepromFlashRead(int address, void *data, size_t length);
+#endif
 bool eepromRead(int address, void* data, size_t length);
 
 bool eepromWrite(int address, void* data, size_t length);

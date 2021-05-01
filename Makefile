@@ -5,6 +5,7 @@ REV               ?= C
 PYTHON2           ?= python2
 # CFLAGS          += -fdiagnostics-color=auto
 CFLAGS += -DUSE_FTDI_UART
+CFLAGS += -DDISABLE_TEST
 
 BOOTLOAD          ?= 0
 
@@ -34,7 +35,7 @@ INCLUDES+=-Ilib/freertos/inc
 # Platform specific files
 ifeq ($(strip $(REV)),C)
 OBJS+=src/f1/startup_stm32f10x.o src/f1/system_stm32f10x.o src/f1/stm32f10x_it.o src/f1/stm32f10x_hal_msp.o
-OBJS+=src/f1/gpio.o src/f1/i2c.o src/f1/spi.o src/f1/system.o src/f1/usart.o
+OBJS+=src/f1/gpio.o src/f1/spi.o src/f1/system.o src/f1/usart.o
 OBJS+=src/f1/usbd_conf.o
 else
 OBJS+=src/f0/startup_stm32f072xb.o src/f0/system_stm32f0xx.o src/f0/stm32f0xx_it.o src/f0/stm32f0xx_hal_msp.o
@@ -46,12 +47,15 @@ OBJS+= src/eeprom.o src/bootmode.o
 
 
 OBJS+=src/main.o
-OBJS+=src/usb_device.o src/usbd_cdc_if.o src/usbd_desc.o src/lps25h.o src/led.o src/button.o
-OBJS+=src/cfg.o src/usbcomm.o src/test_support.o src/production_test.o
+OBJS+=src/usb_device.o src/usbd_cdc_if.o src/usbd_desc.o src/led.o src/button.o
+OBJS+=src/cfg.o src/usbcomm.o src/test_support.o
 OBJS+=src/uwb.o src/uwb_twr_anchor.o src/uwb_sniffer.o src/uwb_twr_tag.o
-OBJS+=src/lpp.o src/uwb_tdoa_anchor2.o src/uwb_tdoa_anchor3.o
+OBJS+=src/lpp.o src/uwb_tdoa_anchor2.o 
+# src/uwb_tdoa_anchor3.o
 
-HALS+=gpio rcc cortex i2c pcd dma pcd_ex rcc_ex spi uart pwr 
+# OBJS+=src/production_test.o src/lps25h.o # LJB: removed it
+# HALS+= i2c
+HALS+=gpio rcc cortex pcd dma pcd_ex rcc_ex spi uart pwr flash
 OBJS+=$(foreach mod, $(HALS), $(HAL_ROOT)/Src/stm32$(CPU)xx_hal_$(mod).o)
 OBJS+=$(HAL_ROOT)/Src/stm32$(CPU)xx_hal.o $(HAL_ROOT)/Src/stm32$(CPU)xx_ll_usb.o
 
