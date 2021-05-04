@@ -112,7 +112,7 @@ static void main_task(void *pvParameters) {
   // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, 0);
   // HAL_Delay(15);
 
-  // MX_USB_DEVICE_Init();
+  MX_USB_DEVICE_Init();
 
   // Light up all LEDs to test
   ledOn(ledRanging);
