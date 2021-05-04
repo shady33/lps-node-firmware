@@ -49,9 +49,12 @@ OBJS+= src/eeprom.o src/bootmode.o
 OBJS+=src/main.o
 OBJS+=src/usb_device.o src/usbd_cdc_if.o src/usbd_desc.o src/led.o src/button.o
 OBJS+=src/cfg.o src/usbcomm.o src/test_support.o
-OBJS+=src/uwb.o src/uwb_twr_anchor.o src/uwb_sniffer.o src/uwb_twr_tag.o
-OBJS+=src/lpp.o src/uwb_tdoa_anchor2.o 
-# src/uwb_tdoa_anchor3.o
+OBJS+=src/uwb.o 
+OBJS+=src/uwb_twr_anchor.o 
+OBJS+=src/uwb_sniffer.o 
+OBJS+=src/uwb_twr_tag.o
+OBJS+=src/lpp.o src/uwb_tdoa_anchor2.o src/uwb_tdoa_anchor3.o
+# 
 
 # OBJS+=src/production_test.o src/lps25h.o # LJB: removed it
 # HALS+= i2c
