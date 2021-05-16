@@ -109,10 +109,15 @@ static void main_task(void *pvParameters) {
   // GPIO_InitStruct.Pull = GPIO_NOPULL;
   // GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   // HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-  // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12, 0);
-  // HAL_Delay(15);
+  // HAL_GPIO_WritePin(GPIOA, GPIO_PIN_12,1);
+  // HAL_Delay(5);
 
-  MX_USB_DEVICE_Init();
+  // RCC_PeriphCLKInitTypeDef PeriphClkInit;
+  // PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USB;
+  // PeriphClkInit.UsbClockSelection = RCC_USBCLKSOURCE_PLL_DIV1_5;
+  // HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit);
+
+  // MX_USB_DEVICE_Init();
 
   // Light up all LEDs to test
   ledOn(ledRanging);

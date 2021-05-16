@@ -40,9 +40,9 @@
 
 // Implemented UWB algoritm. The dummy one is at the end of this file.
 static uwbAlgorithm_t dummyAlgorithm;
-// extern uwbAlgorithm_t uwbTwrAnchorAlgorithm;
-// extern uwbAlgorithm_t uwbTwrTagAlgorithm;
-// extern uwbAlgorithm_t uwbSnifferAlgorithm;
+extern uwbAlgorithm_t uwbTwrAnchorAlgorithm;
+extern uwbAlgorithm_t uwbTwrTagAlgorithm;
+extern uwbAlgorithm_t uwbSnifferAlgorithm;
 extern uwbAlgorithm_t uwbTdoaAlgorithm;
 extern uwbAlgorithm_t uwbTdoa2Algorithm;
 extern uwbAlgorithm_t uwbTdoa3Algorithm;
@@ -52,9 +52,9 @@ struct {
   uwbAlgorithm_t *algorithm;
   char *name;
 } availableAlgorithms[] = {
-  // {.algorithm = &uwbTwrAnchorAlgorithm, .name = "TWR Anchor"},
-  // {.algorithm = &uwbTwrTagAlgorithm,    .name = "TWR Tag"},
-  // {.algorithm = &uwbSnifferAlgorithm,   .name = "Sniffer"},
+  {.algorithm = &uwbTwrAnchorAlgorithm, .name = "TWR Anchor"},
+  {.algorithm = &uwbTwrTagAlgorithm,    .name = "TWR Tag"},
+  {.algorithm = &uwbSnifferAlgorithm,   .name = "Sniffer"},
   {.algorithm = &uwbTdoa2Algorithm,     .name = "TDoA Anchor V2"},
   {.algorithm = &uwbTdoa3Algorithm,     .name = "TDoA Anchor V3"},
   {NULL, NULL},
