@@ -80,7 +80,8 @@ static dwTime_t final_rx;
 static const double C = 299792458.0;       // Speed of light
 static const double tsfreq = 499.2e6 * 128;  // Timestamp counter frequency
 
-#define ANTENNA_OFFSET 154.6   // In meter
+// #define ANTENNA_OFFSET 154.6   // In meter
+#define ANTENNA_OFFSET 0  // In meter
 #define ANTENNA_DELAY  (ANTENNA_OFFSET*499.2e6*128)/299792458.0 // In radio tick
 
 static packet_t rxPacket;
@@ -174,35 +175,53 @@ static void rxcallback(dwDevice_t *dev) {
       memcpy(&poll_rx, &report->pollRx, 5);
       memcpy(&answer_tx, &report->answerTx, 5);
       memcpy(&final_rx, &report->finalRx, 5);
-
+    
+    if (cfgIsBinaryMode()) {
       printf("%02x%08x ", (unsigned int)poll_tx.high8, (unsigned int)poll_tx.low32);
-      printf("%02x%08x\r\n", (unsigned int)poll_rx.high8, (unsigned int)poll_rx.low32);
+      printf("%02x%08x\n", (unsigned int)poll_rx.high8, (unsigned int)poll_rx.low32);
       printf("%02x%08x ", (unsigned int)answer_tx.high8, (unsigned int)answer_tx.low32);
-      printf("%02x%08x\r\n", (unsigned int)answer_rx.high8, (unsigned int)answer_rx.low32);
+      printf("%02x%08x\n", (unsigned int)answer_rx.high8, (unsigned int)answer_rx.low32);
       printf("%02x%08x ", (unsigned int)final_tx.high8, (unsigned int)final_tx.low32);
-      printf("%02x%08x\r\n", (unsigned int)final_rx.high8, (unsigned int)final_rx.low32);
+      printf("%02x%08x\n", (unsigned int)final_rx.high8, (unsigned int)final_rx.low32);
+    }
+    // else{
+    //   printf("I");
+    //   printf("%02x%08x:%02x%08x:%02x%08x:%02x%08x:%02x%08x:%02x%08x\n", (unsigned int)poll_tx.high8, (unsigned int)poll_tx.low32,(unsigned int)poll_rx.high8, (unsigned int)poll_rx.low32,(unsigned int)answer_tx.high8, (unsigned int)answer_tx.low32,(unsigned int)answer_rx.high8, (unsigned int)answer_rx.low32,(unsigned int)final_tx.high8, (unsigned int)final_tx.low32,(unsigned int)final_rx.high8, (unsigned int)final_rx.low32);
+    // }
 
       tround1 = answer_rx.low32 - poll_tx.low32;
       treply1 = answer_tx.low32 - poll_rx.low32;
       tround2 = final_rx.low32 - answer_tx.low32;
       treply2 = final_tx.low32 - answer_rx.low32;
 
+    if (!cfgIsBinaryMode()) {
       printf("%08x %08x\r\n", (unsigned int)tround1, (unsigned int)treply2);
       printf("\\    /   /     \\\r\n");
       printf("%08x %08x\r\n", (unsigned int)treply1, (unsigned int)tround2);
-
+    }else{
+      printf("I");
+      printf("%08x:%08x:%08x:%08x\n",(unsigned int)tround1,(unsigned int)tround2,(unsigned int)treply1,(unsigned int)treply2);
+    }
+      
       tprop_ctn = ((tround1*tround2) - (treply1*treply2)) / (tround1 + tround2 + treply1 + treply2);
 
+    if (!cfgIsBinaryMode()) {
       printf("TProp (ctn): %d\r\n", (unsigned int)tprop_ctn);
+    }
 
       tprop = tprop_ctn/tsfreq;
       distance = C * tprop;
 
+    if (!cfgIsBinaryMode()) {
       printf("distance %d: %5dmm\r\n", rxPacket.sourceAddress[0], (unsigned int)(distance*1000));
+    }
 
       dwGetReceiveTimestamp(dev, &arival);
       arival.full -= (ANTENNA_DELAY/2);
+
+    if (!cfgIsBinaryMode()) {
       printf("Total in-air time (ctn): 0x%08x\r\n", (unsigned int)(arival.low32-poll_tx.low32));
+    }
 
       break;
     }
@@ -211,7 +230,9 @@ static void rxcallback(dwDevice_t *dev) {
 
 void initiateRanging(dwDevice_t *dev)
 {
-  printf ("Interrogating anchor %d\r\n",  config.anchors[curr_anchor]);
+  if (!cfgIsBinaryMode()) {
+    printf ("Interrogating anchor %d\r\n",  config.anchors[curr_anchor]);
+  }
   base_address[0] =  config.anchors[curr_anchor];
   curr_anchor ++;
   if (curr_anchor > config.anchorListSize) {

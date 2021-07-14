@@ -104,7 +104,11 @@ void lppHandleShortPacket(char *data, size_t length)
       }
 
       // Then resets!
-      NVIC_SystemReset();
+      // NVIC_SystemReset();
+      cfgCommit();
+      printf("EEPROM configuration changed, restart for it to take effect!\r\n");
+      vTaskDelay(100);
+      HAL_NVIC_SystemReset();
 
       break;
     }
@@ -121,7 +125,12 @@ void lppHandleShortPacket(char *data, size_t length)
       cfgWriteU32(cfgTxPower, txPower->txPower);
 
       // Then resets!
-      NVIC_SystemReset();
+      // NVIC_SystemReset();
+      cfgCommit();
+      printf("EEPROM configuration changed, restart for it to take effect!\r\n");
+      vTaskDelay(100);
+      HAL_NVIC_SystemReset();
+
 
       break;
     }
@@ -136,7 +145,13 @@ void lppHandleShortPacket(char *data, size_t length)
       cfgWriteU8(cfgLongPreamble, mode->enableLongPreamble);
 
       // Then resets!
-      NVIC_SystemReset();
+      // NVIC_SystemReset();
+
+      cfgCommit();
+      printf("EEPROM configuration changed, restart for it to take effect!\r\n");
+      vTaskDelay(100);
+      HAL_NVIC_SystemReset();
+
 
       break;
     }
